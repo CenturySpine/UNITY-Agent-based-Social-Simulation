@@ -4,6 +4,40 @@ using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+ public class PathRenderer : MonoBehaviour
+{
+    private LineRenderer lineRend;
+    public bool PathDrawn { get; set; }
+
+    public void DeleteGoalLine()
+    {
+        lineRend.positionCount = 0;
+
+        Destroy(lineRend.gameObject);
+        Destroy(lineRend);
+
+        lineRend = null;
+        PathDrawn = false;
+    }
+
+    public void DrawGoalLine(Vector3 current, Vector3 destination)
+    {
+        var lineObject = new GameObject("Line");
+        lineRend = lineObject.AddComponent<LineRenderer>();
+        lineRend.gameObject.SetActive(true);
+        lineRend.startColor = Color.black;
+        lineRend.endColor = Color.black;
+        lineRend.startWidth = 1.0f;
+        lineRend.endWidth = 1.0f;
+        Vector3 sp = current;
+        Vector3 ep = destination;
+        lineRend.positionCount = 2;
+        lineRend.SetPosition(0, sp);
+        lineRend.SetPosition(1, ep);
+        PathDrawn = true;
+    }
+}
+
 public class CandidateNode
 {
     public Vector2 Position;
@@ -23,9 +57,11 @@ public class PathFinder
     private static List<CandidateNode> closedList;
     private static int g;
     private static float proximityRadius = 20;
+    private PathRenderer Renderer;
 
-    private static void Init(Vector2 start, Vector2 destination)
+    private  void Init(Vector2 start, Vector2 destination)
     {
+        Renderer = new PathRenderer();
         current = null;
         startLoc = current;
         targetLoc = destination;
@@ -35,7 +71,7 @@ public class PathFinder
         openList.Add(startLoc);
     }
 
-    private static void Start()
+    private  void Start()
     {
         while (openList.Count > 0)
         {
@@ -91,7 +127,7 @@ public class PathFinder
 
 
     }
-    static List<CandidateNode> GetWalkableAdjacentNodes(Vector2 currentLoc, List<Vector2> map)
+     List<CandidateNode> GetWalkableAdjacentNodes(Vector2 currentLoc, List<Vector2> map)
     {
         //draw proximity area around current position
         Bounds proximityBounds = new Bounds(new Vector3(currentLoc.x - proximityRadius, currentLoc.y - proximityRadius, 0), new Vector3(proximityRadius * 2, proximityRadius * 2, 0));
@@ -103,7 +139,7 @@ public class PathFinder
                 .Select(node => new CandidateNode() { Position = new Vector2(node.x, node.y) })
                 .ToList();
     }
-    private static float ComputeHScore(Vector2 current, Vector2 destination)
+    private  float ComputeHScore(Vector2 current, Vector2 destination)
     {
         return Math.Abs(destination.x - current.x) + Math.Abs(destination.y - current.y);
     }
@@ -129,9 +165,11 @@ public class Entity : MonoBehaviour
     private BoxCollider2D _entityCollider;
     private GlobalGameManager.Goal _currentGoal;
 
+    private PathRenderer PathRenderer;
     // Start is called before the first frame update
     private void Start()
     {
+        PathRenderer = new PathRenderer();
         goals = new List<GlobalGameManager.Goal>();
         CurrentDirection = (Direction)(int)Random.Range(0, 4);
         rb = gameObject.GetComponent<Rigidbody2D>();
@@ -142,7 +180,7 @@ public class Entity : MonoBehaviour
 
     //private GameObject lineObject;
 
-    private LineRenderer lineRend;
+    
 
     // Update is called once per frame
     private void FixedUpdate()
@@ -160,14 +198,14 @@ public class Entity : MonoBehaviour
 
                 //no more objective, it will either pick next one or re start moving randomly
                 _currentGoal = null;
-                DeleteGoalLine();
+                PathRenderer.DeleteGoalLine();
             }
             //objective not reached, continue moving toward objective
             else
             {
-                if (lineRend == null)
+                if (!PathRenderer.PathDrawn)
                 {
-                    DrawGoalLine();
+                    PathRenderer.DrawGoalLine(transform.position, _currentGoal._goalPosition);
                 }
                 transform.position = Vector3.MoveTowards(transform.position, _currentGoal._goalPosition, (float)(Speed * Time.deltaTime)); //<= WORKING DO NOT REMOVE
             }
@@ -234,31 +272,7 @@ public class Entity : MonoBehaviour
         }
     }
 
-    private void DeleteGoalLine()
-    {
-        lineRend.positionCount = 0;
 
-        Destroy(lineRend.gameObject);
-        Destroy(lineRend);
-
-        lineRend = null;
-    }
-
-    private void DrawGoalLine()
-    {
-        var lineObject = new GameObject("Line");
-        lineRend = lineObject.AddComponent<LineRenderer>();
-        lineRend.gameObject.SetActive(true);
-        lineRend.startColor = Color.black;
-        lineRend.endColor = Color.black;
-        lineRend.startWidth = 1.0f;
-        lineRend.endWidth = 1.0f;
-        Vector3 sp = transform.position;
-        Vector3 ep = _currentGoal._goalPosition;
-        lineRend.positionCount = 2;
-        lineRend.SetPosition(0, sp);
-        lineRend.SetPosition(1, ep);
-    }
 
     private void ChangeDirection()
     {
