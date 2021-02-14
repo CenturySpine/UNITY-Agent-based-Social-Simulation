@@ -14,7 +14,7 @@ public class GlobalGameManager : MonoBehaviour
 
     public GameObject entityPrefab;
     public GameObject gridNodePrefab;
-    public int EntityCount = 100;
+    public int EntityCount = 2;
     private EdgeCollider2D edge;
     public double GlobalSpeed = 50;
     public double GlobalAudacity = 0.001f;

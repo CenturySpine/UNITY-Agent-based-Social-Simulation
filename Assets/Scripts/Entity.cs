@@ -89,20 +89,20 @@ public class PathFinder
             }
         }
 
-        static List<CandidateNode> GetWalkableAdjacentNodes(Vector2 currentLoc, List<Vector2> map)
-        {
-            //draw proximity area around current position
-            Bounds proximityBounds = new Bounds(new Vector3(currentLoc.x - proximityRadius, currentLoc.y - proximityRadius, 0), new Vector3(proximityRadius * 2, proximityRadius * 2, 0));
 
-            return
-                //get map nodes which falls inside the proximity bounds
-                map.Where(mapNode => proximityBounds.Contains(mapNode))
-                    //create walkable candidate Node
-                    .Select(node => new CandidateNode() { Position = new Vector2(node.x, node.y) })
-                    .ToList();
-        }
     }
+    static List<CandidateNode> GetWalkableAdjacentNodes(Vector2 currentLoc, List<Vector2> map)
+    {
+        //draw proximity area around current position
+        Bounds proximityBounds = new Bounds(new Vector3(currentLoc.x - proximityRadius, currentLoc.y - proximityRadius, 0), new Vector3(proximityRadius * 2, proximityRadius * 2, 0));
 
+        return
+            //get map nodes which falls inside the proximity bounds
+            map.Where(mapNode => proximityBounds.Contains(mapNode))
+                //create walkable candidate Node
+                .Select(node => new CandidateNode() { Position = new Vector2(node.x, node.y) })
+                .ToList();
+    }
     private static float ComputeHScore(Vector2 current, Vector2 destination)
     {
         return Math.Abs(destination.x - current.x) + Math.Abs(destination.y - current.y);
