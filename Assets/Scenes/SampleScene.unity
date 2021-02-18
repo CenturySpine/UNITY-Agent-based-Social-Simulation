@@ -888,7 +888,7 @@ MonoBehaviour:
     type: 3}
   gridNodePrefab: {fileID: 3829157654541061120, guid: 09e75f2a58493d444bd2104e2389f7bc,
     type: 3}
-  EntityCount: 100
+  EntityCount: 1
   GlobalSpeed: 50
   GlobalAudacity: 0.0010000000474974513
   SpeedIncrement: 10
